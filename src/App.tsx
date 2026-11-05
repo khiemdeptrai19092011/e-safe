@@ -3,6 +3,7 @@ import { useState } from 'react'
 import './App.css'
 import StatCard from './components/dashboard/StatCard'
 import Topbar from './components/layout/Topbar'
+import MobileNav from './components/layout/MobileNav'
 
 type Theme = 'light' | 'dark'
 
@@ -175,18 +176,11 @@ function App() {
         </footer>
       </main>
 
-      <nav className="mobile-nav" aria-label="Điều hướng di động">
-        {navigation.map((item, index) => (
-          <button
-            key={item}
-            className={activePage === item ? 'active' : ''}
-            onClick={() => setActivePage(item)}
-          >
-            <span>{['⌂', '▦', '!', '⚙'][index]}</span>
-            {item}
-          </button>
-        ))}
-      </nav>
+      <MobileNav
+        activePage={activePage}
+        navigation={navigation}
+        onNavigate={setActivePage}
+      />
     </div>
   )
 }
