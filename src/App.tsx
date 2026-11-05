@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 import Topbar from './components/layout/Topbar'
 import MobileNav from './components/layout/MobileNav'
 
+import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import DevicesPage from './pages/DevicesPage'
 import AlertsPage from './pages/AlertsPage'
@@ -16,25 +17,97 @@ import type { Device } from './types/device'
 import type { Theme } from './types/theme'
 import type { Alert } from './types/alert'
 
+// Đọc theme
+function loadTheme(): Theme {
+  try {
+    const savedTheme = localStorage.getItem('e-safe:theme:v1')
+    return savedTheme === 'dark' ? 'dark' : 'light'
+  } catch {
+    return 'light'
+  }
+}
+
+// Đọc dữ liệu thiết bị
+function loadDevices(): Device[] {
+  try {
+    const savedData = localStorage.getItem('e-safe:devices:v1')
+
+    if (!savedData) return initialDevices
+
+    const parsedData: unknown = JSON.parse(savedData)
+
+    return Array.isArray(parsedData)
+      ? (parsedData as Device[])
+      : initialDevices
+  } catch {
+    return initialDevices
+  }
+}
+
+// Đọc dữ liệu cảnh báo
+function loadAlerts(): Alert[] {
+  try {
+    const savedData = localStorage.getItem('e-safe:alerts:v1')
+
+    if (!savedData) return initialAlerts
+
+    const parsedData: unknown = JSON.parse(savedData)
+
+    return Array.isArray(parsedData)
+      ? (parsedData as Alert[])
+      : initialAlerts
+  } catch {
+    return initialAlerts
+  }
+}
+
 function App() {
-  const [theme, setTheme] = useState<Theme>('light')
+  const [theme, setTheme] = useState<Theme>(loadTheme)
   const [activePage, setActivePage] = useState('Tổng quan')
 
-  // Dữ liệu dùng chung cho toàn bộ ứng dụng
-  const [devices, setDevices] = useState<Device[]>(initialDevices)
-  const [alerts, setAlerts] = useState<Alert[]>(initialAlerts)
+  // Chưa đăng nhập khi mở ứng dụng
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  const [devices, setDevices] = useState<Device[]>(loadDevices)
+  const [alerts, setAlerts] = useState<Alert[]>(loadAlerts)
 
   const navigation = ['Tổng quan', 'Thiết bị', 'Cảnh báo', 'Cài đặt']
 
-  // Chuyển đổi giao diện sáng / tối
-  function toggleTheme() {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark'
+  // Lưu và áp dụng theme
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
 
-    setTheme(nextTheme)
-    document.documentElement.dataset.theme = nextTheme
+    try {
+      localStorage.setItem('e-safe:theme:v1', theme)
+    } catch (error) {
+      console.error('Không thể lưu giao diện:', error)
+    }
+  }, [theme])
+
+  // Lưu thiết bị
+  useEffect(() => {
+    try {
+      localStorage.setItem('e-safe:devices:v1', JSON.stringify(devices))
+    } catch (error) {
+      console.error('Không thể lưu dữ liệu thiết bị:', error)
+    }
+  }, [devices])
+
+  // Lưu cảnh báo
+  useEffect(() => {
+    try {
+      localStorage.setItem('e-safe:alerts:v1', JSON.stringify(alerts))
+    } catch (error) {
+      console.error('Không thể lưu dữ liệu cảnh báo:', error)
+    }
+  }, [alerts])
+
+  function toggleTheme() {
+    setTheme((currentTheme) =>
+      currentTheme === 'dark' ? 'light' : 'dark',
+    )
   }
 
-  // Cập nhật thông tin thiết bị
   function updateDevice(updatedDevice: Device) {
     setDevices((currentDevices) =>
       currentDevices.map((device) =>
@@ -43,7 +116,6 @@ function App() {
     )
   }
 
-  // Tiếp nhận cảnh báo
   function acknowledgeAlert(alertId: string) {
     setAlerts((currentAlerts) =>
       currentAlerts.map((alert) =>
@@ -54,7 +126,6 @@ function App() {
     )
   }
 
-  // Đánh dấu cảnh báo đã xử lý
   function resolveAlert(alertId: string) {
     setAlerts((currentAlerts) =>
       currentAlerts.map((alert) =>
@@ -72,6 +143,15 @@ function App() {
   function deleteDevice(deviceId: string) {
     setDevices((currentDevices) =>
       currentDevices.filter((device) => device.id !== deviceId),
+    )
+  }
+
+  // Chưa đăng nhập thì chỉ hiển thị LoginPage
+  if (!isAuthenticated) {
+    return (
+      <LoginPage
+        onLogin={() => setIsAuthenticated(true)}
+      />
     )
   }
 
