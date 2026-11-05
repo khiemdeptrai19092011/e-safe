@@ -6,8 +6,9 @@ import Topbar from './components/layout/Topbar'
 import MobileNav from './components/layout/MobileNav'
 import DashboardPage from './pages/DashboardPage'
 import DevicesPage from './pages/DevicesPage'
-
-type Theme = 'light' | 'dark'
+import AlertsPage from './pages/AlertsPage'
+import type { Theme } from './types/theme'
+import SettingsPage from './pages/SettingsPage'
 
 function App() {
   const [theme, setTheme] = useState<Theme>('light')
@@ -27,9 +28,7 @@ function App() {
       <Topbar
         activePage={activePage}
         navigation={navigation}
-        theme={theme}
         onNavigate={setActivePage}
-        onToggleTheme={toggleTheme}
       />
 
       <main className="main-content">
@@ -37,17 +36,24 @@ function App() {
           <DashboardPage onNavigate={setActivePage} />
         ) : activePage === 'Thiết bị' ? (
           <DevicesPage />
+        ) : activePage === 'Cảnh báo' ? (
+          <AlertsPage />
+        ) : activePage === 'Cài đặt' ? (
+          <SettingsPage
+            theme={theme}
+            onToggleTheme={toggleTheme}
+          />
         ) : (
           <section className="page-heading">
             <div>
               <p className="eyebrow">E-SAFE MONITOR</p>
-              <h1>{activePage}</h1>
-              <p className="page-description">
-                Trang này đang trong quá trình phát triển.
-              </p>
-            </div>
-          </section>
-        )}
+      <h1>{activePage}</h1>
+      <p className="page-description">
+        Trang này đang trong quá trình phát triển.
+      </p>
+    </div>
+  </section>
+)}
 
         <footer className="footer">
           <span>E-Safe Monitor</span>

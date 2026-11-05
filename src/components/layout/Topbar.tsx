@@ -2,17 +2,13 @@
 type TopbarProps = {
   activePage: string
   navigation: string[]
-  theme: 'light' | 'dark'
   onNavigate: (page: string) => void
-  onToggleTheme: () => void
 }
 
 function Topbar({
   activePage,
   navigation,
-  theme,
   onNavigate,
-  onToggleTheme,
 }: TopbarProps) {
   return (
     <header className="topbar">
@@ -38,17 +34,8 @@ function Topbar({
       <div className="topbar-actions">
         <div className="connection-status">
           <span className="status-dot" />
-          <span>Hệ thống hoạt động</span>
+          <span>Chế độ mô phỏng</span>
         </div>
-
-        <button
-          className="theme-button"
-          onClick={onToggleTheme}
-          aria-label="Đổi giao diện"
-          title="Đổi giao diện"
-        >
-          {theme === 'dark' ? '☀' : '☾'}
-        </button>
       </div>
     </header>
   )

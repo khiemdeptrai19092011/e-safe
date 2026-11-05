@@ -1,0 +1,43 @@
+import type { Alert } from '../types/alert'
+
+export const alerts: Alert[] = [
+  {
+    id: 'AL-001',
+    deviceId: 'ES-002',
+    deviceName: 'Tủ điện khu vực B',
+    location: 'Tầng 2 · Khu vực B',
+    level: 'critical',
+    status: 'new',
+    title: 'Nhiệt độ tăng cao bất thường',
+    message: 'Nhiệt độ tại điểm giám sát đã vượt ngưỡng cảnh báo.',
+    temperature: 67.2,
+    current: 4.8,
+    createdAt: '5 phút trước',
+  },
+  {
+    id: 'AL-002',
+    deviceId: 'ES-002',
+    deviceName: 'Tủ điện khu vực B',
+    location: 'Tầng 2 · Khu vực B',
+    level: 'warning',
+    status: 'acknowledged',
+    title: 'Dòng điện tăng cao',
+    message: 'Dòng điện đang cao hơn mức vận hành thông thường.',
+    temperature: 64.8,
+    current: 4.8,
+    createdAt: '18 phút trước',
+  },
+  {
+    id: 'AL-003',
+    deviceId: 'ES-001',
+    deviceName: 'Tủ điện khu vực A',
+    location: 'Tầng 1 · Khu vực A',
+    level: 'info',
+    status: 'resolved',
+    title: 'Nhiệt độ đã trở về bình thường',
+    message: 'Thông số nhiệt độ đã trở lại vùng vận hành ổn định.',
+    temperature: 38.5,
+    current: 2.4,
+    createdAt: '1 giờ trước',
+  },
+]

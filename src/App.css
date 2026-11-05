@@ -98,16 +98,6 @@
   background: var(--success);
 }
 
-.theme-button {
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface-secondary);
-  color: var(--text);
-  font-size: 18px;
-}
-
 .main-content {
   width: min(1440px, 100%);
   margin: 0 auto;
