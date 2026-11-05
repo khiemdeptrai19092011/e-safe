@@ -1,38 +1,54 @@
 
 import StatCard from '../components/dashboard/StatCard'
 
+import type { Device } from '../types/device'
+import type { Alert } from '../types/alert'
+
 type DashboardPageProps = {
+  devices: Device[]
+  alerts: Alert[]
   onNavigate: (page: string) => void
 }
 
-const devices = [
-  {
-    id: 'ES-001',
-    name: 'Tủ điện khu vực A',
-    location: 'Tầng 1 · Khu vực A',
-    temperature: 38.5,
-    current: 2.4,
-    status: 'normal',
-  },
-  {
-    id: 'ES-002',
-    name: 'Tủ điện khu vực B',
-    location: 'Tầng 2 · Khu vực B',
-    temperature: 67.2,
-    current: 4.8,
-    status: 'warning',
-  },
-  {
-    id: 'ES-003',
-    name: 'Tủ điện khu vực C',
-    location: 'Tầng 2 · Khu vực C',
-    temperature: 35.1,
-    current: 1.9,
-    status: 'normal',
-  },
-]
+function DashboardPage({
+  devices,
+  alerts,
+  onNavigate,
+}: DashboardPageProps) {
+  // Tính toán thống kê thiết bị
+  const totalDevices = devices.length
 
-function DashboardPage({ onNavigate }: DashboardPageProps) {
+  const normalDevices = devices.filter(
+    (device) => device.status === 'normal',
+  ).length
+
+  const warningDevices = devices.filter(
+    (device) => device.status === 'warning',
+  ).length
+
+  const offlineDevices = devices.filter(
+    (device) => device.status === 'offline',
+  ).length
+
+  // Chỉ lấy cảnh báo chưa được xử lý
+  const activeAlerts = alerts.filter(
+    (alert) => alert.status !== 'resolved',
+  )
+
+  const latestAlert = activeAlerts[0]
+
+  // Chuyển trạng thái thiết bị thành nhãn tiếng Việt
+  function getDeviceStatusLabel(status: Device['status']) {
+    switch (status) {
+      case 'normal':
+        return 'Bình thường'
+      case 'warning':
+        return 'Cảnh báo'
+      case 'offline':
+        return 'Mất kết nối'
+    }
+  }
+
   return (
     <>
       <section className="page-heading">
@@ -53,28 +69,31 @@ function DashboardPage({ onNavigate }: DashboardPageProps) {
       <section className="stats-grid" aria-label="Thống kê hệ thống">
         <StatCard
           label="Tổng thiết bị"
-          value="08"
+          value={String(totalDevices).padStart(2, '0')}
           note="Điểm giám sát"
           icon="▦"
           color="blue"
         />
+
         <StatCard
           label="Hoạt động bình thường"
-          value="07"
+          value={String(normalDevices).padStart(2, '0')}
           note="Trong ngưỡng an toàn"
           icon="✓"
           color="green"
         />
+
         <StatCard
           label="Cảnh báo"
-          value="01"
+          value={String(warningDevices).padStart(2, '0')}
           note="Cần kiểm tra"
           icon="!"
           color="orange"
         />
+
         <StatCard
           label="Mất kết nối"
-          value="00"
+          value={String(offlineDevices).padStart(2, '0')}
           note="Thiết bị ngoại tuyến"
           icon="⌁"
           color="red"
@@ -124,13 +143,15 @@ function DashboardPage({ onNavigate }: DashboardPageProps) {
 
                   <span className={`device-status ${device.status}`}>
                     <span />
-                    {device.status === 'normal'
-                      ? 'Bình thường'
-                      : 'Cảnh báo'}
+                    {getDeviceStatusLabel(device.status)}
                   </span>
                 </div>
               </article>
             ))}
+
+            {devices.length === 0 && (
+              <p>Chưa có thiết bị nào trong hệ thống.</p>
+            )}
           </div>
         </div>
 
@@ -141,21 +162,38 @@ function DashboardPage({ onNavigate }: DashboardPageProps) {
               <p>Các sự kiện cần chú ý</p>
             </div>
 
-            <span className="alert-count">01</span>
+            <span className="alert-count">
+              {String(activeAlerts.length).padStart(2, '0')}
+            </span>
           </div>
 
-          <article className="alert-item">
-            <div className="alert-icon">!</div>
+          {latestAlert ? (
+            <article className="alert-item">
+              <div className="alert-icon">!</div>
 
-            <div>
-              <h3>Nhiệt độ tăng cao</h3>
-              <p>ES-002 · Tủ điện khu vực B</p>
-              <strong>67.2°C</strong>
-              <span className="alert-time">
-                Vừa cập nhật · Dữ liệu demo
-              </span>
+              <div>
+                <h3>{latestAlert.title}</h3>
+                <p>
+                  {latestAlert.deviceId} · {latestAlert.deviceName}
+                </p>
+
+                {latestAlert.temperature !== undefined && (
+                  <strong>{latestAlert.temperature}°C</strong>
+                )}
+
+                <span className="alert-time">
+                  {latestAlert.createdAt}
+                </span>
+              </div>
+            </article>
+          ) : (
+            <div className="alert-item">
+              <div>
+                <h3>Không có cảnh báo đang hoạt động</h3>
+                <p>Hệ thống hiện không ghi nhận cảnh báo mới.</p>
+              </div>
             </div>
-          </article>
+          )}
 
           <div className="alert-footer">
             Đây là cảnh báo mô phỏng, không phải dữ liệu từ thiết bị thật.

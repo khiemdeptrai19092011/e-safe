@@ -1,7 +1,11 @@
+
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { devices } from '../data/devices'
-import type { DeviceStatus } from '../types/device'
+import type { Device, DeviceStatus } from '../types/device'
 import './DevicesToolbar.css'
+
+type DevicesPageProps = {
+  devices: Device[]
+}
 
 type FilterStatus = 'all' | DeviceStatus
 type SortKey = 'default' | 'severity' | 'name' | 'temperature' | 'current'
@@ -33,7 +37,7 @@ const severityRank: Record<DeviceStatus, number> = {
   normal: 2,
 }
 
-function DevicesPage() {
+function DevicesPage({ devices }: DevicesPageProps) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<FilterStatus>('all')
   const [sort, setSort] = useState<SortKey>('default')
@@ -50,12 +54,14 @@ function DevicesPage() {
         setIsSortOpen(false)
       }
     }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setIsSortOpen(false)
     }
 
     document.addEventListener('mousedown', handlePointerDown)
     document.addEventListener('keydown', handleKeyDown)
+
     return () => {
       document.removeEventListener('mousedown', handlePointerDown)
       document.removeEventListener('keydown', handleKeyDown)
@@ -64,7 +70,7 @@ function DevicesPage() {
 
   const keyword = search.trim().toLowerCase()
 
-  // Các thiết bị khớp từ khóa (chưa lọc trạng thái) -> dùng để đếm số lượng trên mỗi tab
+  // Tìm kiếm thiết bị
   const searchMatched = useMemo(
     () =>
       devices.filter(
@@ -73,9 +79,10 @@ function DevicesPage() {
           device.id.toLowerCase().includes(keyword) ||
           device.location.toLowerCase().includes(keyword),
       ),
-    [keyword],
+    [devices, keyword],
   )
 
+  // Đếm số thiết bị theo từng trạng thái
   const counts = useMemo(() => {
     const result: Record<FilterStatus, number> = {
       all: searchMatched.length,
@@ -83,12 +90,15 @@ function DevicesPage() {
       warning: 0,
       offline: 0,
     }
+
     searchMatched.forEach((device) => {
       result[device.status] += 1
     })
+
     return result
   }, [searchMatched])
 
+  // Lọc và sắp xếp
   const filteredDevices = useMemo(() => {
     const list =
       filter === 'all'
@@ -99,16 +109,20 @@ function DevicesPage() {
       case 'severity':
         list.sort((a, b) => severityRank[a.status] - severityRank[b.status])
         break
+
       case 'name':
         list.sort((a, b) => a.name.localeCompare(b.name, 'vi'))
         break
+
       case 'temperature':
         list.sort((a, b) => b.temperature - a.temperature)
         break
+
       case 'current':
         list.sort((a, b) => b.current - a.current)
         break
     }
+
     return list
   }, [searchMatched, filter, sort])
 
@@ -121,7 +135,9 @@ function DevicesPage() {
     setSort('default')
   }
 
-  const currentSortLabel = sortOptions.find((o) => o.value === sort)?.label
+  const currentSortLabel = sortOptions.find(
+    (option) => option.value === sort,
+  )?.label
 
   return (
     <>
@@ -230,7 +246,9 @@ function DevicesPage() {
                     }}
                   >
                     <span>{option.label}</span>
-                    {sort === option.value && <span aria-hidden="true">✓</span>}
+                    {sort === option.value && (
+                      <span aria-hidden="true">✓</span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -238,9 +256,13 @@ function DevicesPage() {
           </div>
         </div>
 
-        {/* Lọc trạng thái dạng chip kèm số lượng */}
+        {/* Lọc trạng thái */}
         <div className="device-toolbar-row device-toolbar-row--chips">
-          <div className="status-chips" role="group" aria-label="Lọc theo trạng thái">
+          <div
+            className="status-chips"
+            role="group"
+            aria-label="Lọc theo trạng thái"
+          >
             {statusTabs.map((tab) => (
               <button
                 type="button"
@@ -251,15 +273,24 @@ function DevicesPage() {
                 aria-pressed={filter === tab.value}
                 onClick={() => setFilter(tab.value)}
               >
-                {tab.value !== 'all' && <span className="status-chip-dot" />}
+                {tab.value !== 'all' && (
+                  <span className="status-chip-dot" />
+                )}
+
                 {tab.label}
-                <span className="status-chip-count">{counts[tab.value]}</span>
+                <span className="status-chip-count">
+                  {counts[tab.value]}
+                </span>
               </button>
             ))}
           </div>
 
           {hasActiveFilters && (
-            <button type="button" className="toolbar-reset" onClick={resetAll}>
+            <button
+              type="button"
+              className="toolbar-reset"
+              onClick={resetAll}
+            >
               Đặt lại
             </button>
           )}
@@ -307,8 +338,13 @@ function DevicesPage() {
           <div className="empty-state">
             <strong>Không tìm thấy thiết bị</strong>
             <p>Thử thay đổi từ khóa hoặc bộ lọc của bạn.</p>
+
             {hasActiveFilters && (
-              <button type="button" className="toolbar-reset" onClick={resetAll}>
+              <button
+                type="button"
+                className="toolbar-reset"
+                onClick={resetAll}
+              >
                 Xóa tất cả bộ lọc
               </button>
             )}

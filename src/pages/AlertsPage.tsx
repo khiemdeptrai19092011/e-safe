@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react'
-import { alerts } from '../data/alerts'
-import type { AlertLevel, AlertStatus } from '../types/alert'
+import type { Alert, AlertLevel, AlertStatus } from '../types/alert'
 import './AlertsPage.css'
+
+type AlertsPageProps = {
+  alerts: Alert[]
+}
 
 type LevelFilter = 'all' | AlertLevel
 type StatusFilter = 'all' | AlertStatus
@@ -18,7 +21,7 @@ const statusLabels: Record<AlertStatus, string> = {
   resolved: 'Đã xử lý',
 }
 
-function AlertsPage() {
+function AlertsPage({ alerts }: AlertsPageProps) {
   const [levelFilter, setLevelFilter] = useState<LevelFilter>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 
@@ -29,7 +32,7 @@ function AlertsPage() {
       warning: alerts.filter((alert) => alert.level === 'warning').length,
       info: alerts.filter((alert) => alert.level === 'info').length,
     }
-  }, [])
+  }, [alerts])
 
   const filteredAlerts = useMemo(() => {
     return alerts.filter((alert) => {
@@ -41,7 +44,7 @@ function AlertsPage() {
 
       return levelMatch && statusMatch
     })
-  }, [levelFilter, statusFilter])
+  }, [alerts, levelFilter, statusFilter])
 
   const hasActiveFilters =
     levelFilter !== 'all' || statusFilter !== 'all'
