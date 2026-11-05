@@ -5,6 +5,7 @@ import './App.css'
 import Topbar from './components/layout/Topbar'
 import MobileNav from './components/layout/MobileNav'
 import DashboardPage from './pages/DashboardPage'
+import DevicesPage from './pages/DevicesPage'
 
 type Theme = 'light' | 'dark'
 
@@ -34,6 +35,8 @@ function App() {
       <main className="main-content">
         {activePage === 'Tổng quan' ? (
           <DashboardPage onNavigate={setActivePage} />
+        ) : activePage === 'Thiết bị' ? (
+          <DevicesPage />
         ) : (
           <section className="page-heading">
             <div>
