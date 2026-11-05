@@ -1,121 +1,241 @@
+
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
 import './App.css'
 
+type Theme = 'light' | 'dark'
+
+const devices = [
+  {
+    id: 'ES-001',
+    name: 'Tủ điện khu vực A',
+    location: 'Tầng 1 · Khu vực A',
+    temperature: 38.5,
+    current: 2.4,
+    status: 'normal',
+  },
+  {
+    id: 'ES-002',
+    name: 'Tủ điện khu vực B',
+    location: 'Tầng 2 · Khu vực B',
+    temperature: 67.2,
+    current: 4.8,
+    status: 'warning',
+  },
+  {
+    id: 'ES-003',
+    name: 'Tủ điện khu vực C',
+    location: 'Tầng 2 · Khu vực C',
+    temperature: 35.1,
+    current: 1.9,
+    status: 'normal',
+  },
+]
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [theme, setTheme] = useState<Theme>('light')
+  const [activePage, setActivePage] = useState('Tổng quan')
+
+  function toggleTheme() {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark'
+    setTheme(nextTheme)
+    document.documentElement.dataset.theme = nextTheme
+  }
+
+  const navigation = ['Tổng quan', 'Thiết bị', 'Cảnh báo', 'Cài đặt']
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-shell">
+      <header className="topbar">
+        <a className="brand" href="#" aria-label="E-Safe Monitor">
+          <span className="brand-icon">E</span>
+          <span className="brand-name">
+            E-Safe<span> Monitor</span>
+          </span>
+        </a>
 
-      <div className="ticks"></div>
+        <nav className="desktop-nav" aria-label="Điều hướng chính">
+          {navigation.map((item) => (
+            <button
+              key={item}
+              className={`nav-link ${activePage === item ? 'active' : ''}`}
+              onClick={() => setActivePage(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </nav>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <div className="topbar-actions">
+          <div className="connection-status">
+            <span className="status-dot" />
+            <span>Hệ thống hoạt động</span>
+          </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+          <button
+            className="theme-button"
+            onClick={toggleTheme}
+            aria-label="Đổi giao diện"
+            title="Đổi giao diện"
+          >
+            {theme === 'dark' ? '☀' : '☾'}
+          </button>
+        </div>
+      </header>
+
+      <main className="main-content">
+        <section className="page-heading">
+          <div>
+            <p className="eyebrow">GIÁM SÁT HỆ THỐNG</p>
+            <h1>{activePage}</h1>
+            <p className="page-description">
+              Theo dõi nhiệt độ, dòng điện và trạng thái các điểm giám sát.
+            </p>
+          </div>
+
+          <div className="last-update">
+            <span className="update-dot" />
+            Dữ liệu mô phỏng
+          </div>
+        </section>
+
+        <section className="stats-grid" aria-label="Thống kê hệ thống">
+          <StatCard
+            label="Tổng thiết bị"
+            value="08"
+            note="Điểm giám sát"
+            icon="▦"
+            color="blue"
+          />
+          <StatCard
+            label="Hoạt động bình thường"
+            value="07"
+            note="Trong ngưỡng an toàn"
+            icon="✓"
+            color="green"
+          />
+          <StatCard
+            label="Cảnh báo"
+            value="01"
+            note="Cần kiểm tra"
+            icon="!"
+            color="orange"
+          />
+          <StatCard
+            label="Mất kết nối"
+            value="00"
+            note="Thiết bị ngoại tuyến"
+            icon="⌁"
+            color="red"
+          />
+        </section>
+
+        <section className="content-grid">
+          <div className="panel devices-panel">
+            <div className="panel-heading">
+              <div>
+                <h2>Thiết bị giám sát</h2>
+                <p>Trạng thái các điểm đo trong hệ thống</p>
+              </div>
+              <button className="text-button" onClick={() => setActivePage('Thiết bị')}>
+                Xem tất cả <span>→</span>
+              </button>
+            </div>
+
+            <div className="device-list">
+              {devices.map((device) => (
+                <article className="device-card" key={device.id}>
+                  <div className="device-main">
+                    <div className="device-icon">⌘</div>
+                    <div className="device-info">
+                      <h3>{device.name}</h3>
+                      <p>{device.id} · {device.location}</p>
+                    </div>
+                  </div>
+
+                  <div className="device-metrics">
+                    <div className="metric">
+                      <span>Nhiệt độ</span>
+                      <strong>{device.temperature}°C</strong>
+                    </div>
+                    <div className="metric">
+                      <span>Dòng điện</span>
+                      <strong>{device.current} A</strong>
+                    </div>
+                    <span className={`device-status ${device.status}`}>
+                      <span />
+                      {device.status === 'normal' ? 'Bình thường' : 'Cảnh báo'}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <aside className="panel alerts-panel">
+            <div className="panel-heading">
+              <div>
+                <h2>Cảnh báo gần đây</h2>
+                <p>Các sự kiện cần chú ý</p>
+              </div>
+              <span className="alert-count">01</span>
+            </div>
+
+            <article className="alert-item">
+              <div className="alert-icon">!</div>
+              <div>
+                <h3>Nhiệt độ tăng cao</h3>
+                <p>ES-002 · Tủ điện khu vực B</p>
+                <strong>67.2°C</strong>
+                <span className="alert-time">Vừa cập nhật · Dữ liệu demo</span>
+              </div>
+            </article>
+
+            <div className="alert-footer">
+              Đây là cảnh báo mô phỏng, không phải dữ liệu từ thiết bị thật.
+            </div>
+          </aside>
+        </section>
+
+        <footer className="footer">
+          <span>E-Safe Monitor</span>
+          <span>Hệ thống giám sát và cảnh báo sớm · Bản thử nghiệm</span>
+        </footer>
+      </main>
+
+      <nav className="mobile-nav" aria-label="Điều hướng di động">
+        {navigation.map((item, index) => (
+          <button
+            key={item}
+            className={activePage === item ? 'active' : ''}
+            onClick={() => setActivePage(item)}
+          >
+            <span>{['⌂', '▦', '!', '⚙'][index]}</span>
+            {item}
+          </button>
+        ))}
+      </nav>
+    </div>
+  )
+}
+
+type StatCardProps = {
+  label: string
+  value: string
+  note: string
+  icon: string
+  color: string
+}
+
+function StatCard({ label, value, note, icon, color }: StatCardProps) {
+  return (
+    <article className="stat-card">
+      <div className="stat-top">
+        <span>{label}</span>
+        <span className={`stat-icon ${color}`}>{icon}</span>
+      </div>
+      <strong className="stat-value">{value}</strong>
+      <span className="stat-note">{note}</span>
+    </article>
   )
 }
 

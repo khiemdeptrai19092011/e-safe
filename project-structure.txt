@@ -1,0 +1,35 @@
+.
+├── eslint.config.js
+├── .gitignore
+├── index.html
+├── package.json
+├── package-lock.json
+├── project-structure.txt
+├── public
+│   ├── favicon.svg
+│   └── icons.svg
+├── README.md
+├── src
+│   ├── App.css
+│   ├── App.tsx
+│   ├── assets
+│   │   ├── hero.png
+│   │   ├── react.svg
+│   │   └── vite.svg
+│   ├── components
+│   │   ├── common
+│   │   ├── dashboard
+│   │   └── layout
+│   ├── data
+│   ├── index.css
+│   ├── main.tsx
+│   ├── pages
+│   ├── services
+│   ├── styles
+│   └── types
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+13 directories, 20 files
