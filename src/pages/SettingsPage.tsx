@@ -1,6 +1,6 @@
 
 import { useState } from 'react'
-import type { Theme } from '../types/theme'
+import type { Theme } from '../types/theme.ts'
 import './SettingsPage.css'
 
 type SettingsPageProps = {
