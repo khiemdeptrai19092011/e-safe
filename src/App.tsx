@@ -47,42 +47,13 @@ function App() {
 
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <a className="brand" href="#" aria-label="E-Safe Monitor">
-          <span className="brand-icon">E</span>
-          <span className="brand-name">
-            E-Safe<span> Monitor</span>
-          </span>
-        </a>
-
-        <nav className="desktop-nav" aria-label="Điều hướng chính">
-          {navigation.map((item) => (
-            <button
-              key={item}
-              className={`nav-link ${activePage === item ? 'active' : ''}`}
-              onClick={() => setActivePage(item)}
-            >
-              {item}
-            </button>
-          ))}
-        </nav>
-
-        <div className="topbar-actions">
-          <div className="connection-status">
-            <span className="status-dot" />
-            <span>Hệ thống hoạt động</span>
-          </div>
-
-          <button
-            className="theme-button"
-            onClick={toggleTheme}
-            aria-label="Đổi giao diện"
-            title="Đổi giao diện"
-          >
-            {theme === 'dark' ? '☀' : '☾'}
-          </button>
-        </div>
-      </header>
+      <Topbar
+        activePage={activePage}
+        navigation={navigation}
+        theme={theme}
+        onNavigate={setActivePage}
+        onToggleTheme={toggleTheme}
+      />    
 
       <main className="main-content">
         <section className="page-heading">
