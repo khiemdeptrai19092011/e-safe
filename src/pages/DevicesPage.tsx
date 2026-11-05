@@ -1,14 +1,27 @@
-
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { FormEvent } from 'react'
 import type { Device, DeviceStatus } from '../types/device'
 import './DevicesToolbar.css'
+import './DevicesPage.css'
 
 type DevicesPageProps = {
   devices: Device[]
+  onUpdateDevice: (device: Device) => void
+  onAddDevice: (device: Device) => void
+  onDeleteDevice: (deviceId: string) => void
 }
 
 type FilterStatus = 'all' | DeviceStatus
 type SortKey = 'default' | 'severity' | 'name' | 'temperature' | 'current'
+type ModalMode = 'create' | 'edit' | null
+
+type DeviceFormData = {
+  name: string
+  location: string
+  temperature: string
+  current: string
+  status: DeviceStatus
+}
 
 const statusLabels: Record<DeviceStatus, string> = {
   normal: 'Bình thường',
@@ -37,11 +50,29 @@ const severityRank: Record<DeviceStatus, number> = {
   normal: 2,
 }
 
-function DevicesPage({ devices }: DevicesPageProps) {
+const emptyForm: DeviceFormData = {
+  name: '',
+  location: '',
+  temperature: '',
+  current: '',
+  status: 'normal',
+}
+
+function DevicesPage({
+  devices,
+  onUpdateDevice,
+  onAddDevice,
+  onDeleteDevice,
+}: DevicesPageProps) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<FilterStatus>('all')
   const [sort, setSort] = useState<SortKey>('default')
   const [isSortOpen, setIsSortOpen] = useState(false)
+
+  const [modalMode, setModalMode] = useState<ModalMode>(null)
+  const [editingDevice, setEditingDevice] = useState<Device | null>(null)
+  const [formData, setFormData] = useState<DeviceFormData>(emptyForm)
+  const [formError, setFormError] = useState('')
 
   const sortRef = useRef<HTMLDivElement>(null)
 
@@ -67,6 +98,150 @@ function DevicesPage({ devices }: DevicesPageProps) {
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [isSortOpen])
+
+  // Đóng modal bằng phím Esc
+  useEffect(() => {
+    if (!modalMode) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeModal()
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [modalMode])
+
+  // Sinh mã thiết bị đầu tiên chưa được sử dụng
+  function generateDeviceId() {
+    let number = 1
+    const existingIds = new Set(devices.map((device) => device.id))
+
+    while (existingIds.has(`ES-${String(number).padStart(3, '0')}`)) {
+      number += 1
+    }
+
+    return `ES-${String(number).padStart(3, '0')}`
+  }
+
+  // Mở modal thêm thiết bị
+  function openCreateModal() {
+    setEditingDevice(null)
+    setFormData(emptyForm)
+    setFormError('')
+    setModalMode('create')
+  }
+
+  // Mở modal chỉnh sửa
+  function openEditModal(device: Device) {
+    setEditingDevice(device)
+    setFormData({
+      name: device.name,
+      location: device.location,
+      temperature: String(device.temperature),
+      current: String(device.current),
+      status: device.status,
+    })
+    setFormError('')
+    setModalMode('edit')
+  }
+
+  // Đóng modal
+  function closeModal() {
+    setModalMode(null)
+    setEditingDevice(null)
+    setFormData(emptyForm)
+    setFormError('')
+  }
+
+  // Cập nhật dữ liệu trong form
+  function updateForm<K extends keyof DeviceFormData>(
+    field: K,
+    value: DeviceFormData[K],
+  ) {
+    setFormData((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
+
+  // Thêm hoặc cập nhật thiết bị
+  function handleSaveDevice(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const temperature = Number(formData.temperature)
+    const current = Number(formData.current)
+
+    if (!formData.name.trim()) {
+      setFormError('Vui lòng nhập tên thiết bị.')
+      return
+    }
+
+    if (!formData.location.trim()) {
+      setFormError('Vui lòng nhập vị trí thiết bị.')
+      return
+    }
+
+    if (
+      formData.temperature.trim() === '' ||
+      !Number.isFinite(temperature) ||
+      temperature < 0
+    ) {
+      setFormError('Nhiệt độ phải là số hợp lệ và không được âm.')
+      return
+    }
+
+    if (
+      formData.current.trim() === '' ||
+      !Number.isFinite(current) ||
+      current < 0
+    ) {
+      setFormError('Dòng điện phải là số hợp lệ và không được âm.')
+      return
+    }
+
+    if (modalMode === 'create') {
+      const newDevice: Device = {
+        id: generateDeviceId(),
+        name: formData.name.trim(),
+        location: formData.location.trim(),
+        temperature,
+        current,
+        status: formData.status,
+      }
+
+      onAddDevice(newDevice)
+      setSearch('')
+      setFilter('all')
+      setSort('default')
+    } else if (modalMode === 'edit' && editingDevice) {
+      const updatedDevice: Device = {
+        ...editingDevice,
+        name: formData.name.trim(),
+        location: formData.location.trim(),
+        temperature,
+        current,
+        status: formData.status,
+      }
+
+      onUpdateDevice(updatedDevice)
+    }
+
+    closeModal()
+  }
+
+  // Xóa thiết bị sau khi xác nhận
+  function handleDeleteDevice(device: Device) {
+    const confirmed = window.confirm(
+      `Bạn có chắc chắn muốn xóa thiết bị "${device.name}" (${device.id}) không?`,
+    )
+
+    if (!confirmed) return
+
+    onDeleteDevice(device.id)
+  }
 
   const keyword = search.trim().toLowerCase()
 
@@ -158,7 +333,6 @@ function DevicesPage({ devices }: DevicesPageProps) {
 
       <section className="device-toolbar" aria-label="Tìm kiếm và lọc thiết bị">
         <div className="device-toolbar-row">
-          {/* Tìm kiếm */}
           <div className="device-search-field">
             <svg
               className="device-search-icon"
@@ -207,7 +381,6 @@ function DevicesPage({ devices }: DevicesPageProps) {
             )}
           </div>
 
-          {/* Sắp xếp */}
           <div className="device-sort" ref={sortRef}>
             <button
               type="button"
@@ -256,7 +429,6 @@ function DevicesPage({ devices }: DevicesPageProps) {
           </div>
         </div>
 
-        {/* Lọc trạng thái */}
         <div className="device-toolbar-row device-toolbar-row--chips">
           <div
             className="status-chips"
@@ -298,8 +470,19 @@ function DevicesPage({ devices }: DevicesPageProps) {
       </section>
 
       <section className="device-page-list">
-        <div className="device-results" aria-live="polite">
-          Hiển thị {filteredDevices.length} / {devices.length} thiết bị
+        <div className="device-list-heading">
+          <div className="device-results" aria-live="polite">
+            Hiển thị {filteredDevices.length} / {devices.length} thiết bị
+          </div>
+
+          <button
+            type="button"
+            className="device-add-button"
+            onClick={openCreateModal}
+          >
+            <span aria-hidden="true">＋</span>
+            Thêm thiết bị
+          </button>
         </div>
 
         {filteredDevices.length > 0 ? (
@@ -331,26 +514,208 @@ function DevicesPage({ devices }: DevicesPageProps) {
                   <span />
                   {statusLabels[device.status]}
                 </span>
+
+                <div className="device-card-actions">
+                  <button
+                    type="button"
+                    className="device-edit-button"
+                    onClick={() => openEditModal(device)}
+                    aria-label={`Chỉnh sửa ${device.name}`}
+                  >
+                    <span aria-hidden="true">✎</span>
+                    Chỉnh sửa
+                  </button>
+
+                  <button
+                    type="button"
+                    className="device-delete-button"
+                    onClick={() => handleDeleteDevice(device)}
+                    aria-label={`Xóa ${device.name}`}
+                  >
+                    <span aria-hidden="true">⌫</span>
+                    Xóa
+                  </button>
+                </div>
               </div>
             </article>
           ))
         ) : (
           <div className="empty-state">
-            <strong>Không tìm thấy thiết bị</strong>
-            <p>Thử thay đổi từ khóa hoặc bộ lọc của bạn.</p>
+            <strong>
+              {devices.length === 0
+                ? 'Chưa có thiết bị nào'
+                : 'Không tìm thấy thiết bị'}
+            </strong>
+            <p>
+              {devices.length === 0
+                ? 'Bắt đầu bằng cách thêm thiết bị đầu tiên.'
+                : 'Thử thay đổi từ khóa hoặc bộ lọc của bạn.'}
+            </p>
 
-            {hasActiveFilters && (
+            {devices.length === 0 ? (
               <button
                 type="button"
-                className="toolbar-reset"
-                onClick={resetAll}
+                className="device-add-button"
+                onClick={openCreateModal}
               >
-                Xóa tất cả bộ lọc
+                ＋ Thêm thiết bị
               </button>
+            ) : (
+              hasActiveFilters && (
+                <button
+                  type="button"
+                  className="toolbar-reset"
+                  onClick={resetAll}
+                >
+                  Xóa tất cả bộ lọc
+                </button>
+              )
             )}
           </div>
         )}
       </section>
+
+      {/* Modal thêm / chỉnh sửa thiết bị */}
+      {modalMode && (
+        <div
+          className="device-modal-overlay"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeModal()
+            }
+          }}
+        >
+          <section
+            className="device-edit-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="device-modal-title"
+          >
+            <div className="device-modal-header">
+              <div>
+                <p className="eyebrow">QUẢN LÝ THIẾT BỊ</p>
+                <h2 id="device-modal-title">
+                  {modalMode === 'create'
+                    ? 'Thêm thiết bị mới'
+                    : 'Chỉnh sửa thiết bị'}
+                </h2>
+                <p>
+                  {modalMode === 'create'
+                    ? `Mã thiết bị: ${generateDeviceId()}`
+                    : editingDevice?.id}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="device-modal-close"
+                onClick={closeModal}
+                aria-label="Đóng cửa sổ"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveDevice}>
+              <div className="device-form-grid">
+                <label className="device-form-field device-form-full">
+                  <span>Tên thiết bị</span>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(event) =>
+                      updateForm('name', event.target.value)
+                    }
+                    placeholder="Nhập tên thiết bị"
+                    required
+                  />
+                </label>
+
+                <label className="device-form-field device-form-full">
+                  <span>Vị trí lắp đặt</span>
+                  <input
+                    type="text"
+                    value={formData.location}
+                    onChange={(event) =>
+                      updateForm('location', event.target.value)
+                    }
+                    placeholder="Nhập vị trí"
+                    required
+                  />
+                </label>
+
+                <label className="device-form-field">
+                  <span>Nhiệt độ (°C)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={formData.temperature}
+                    onChange={(event) =>
+                      updateForm('temperature', event.target.value)
+                    }
+                    required
+                  />
+                </label>
+
+                <label className="device-form-field">
+                  <span>Dòng điện (A)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={formData.current}
+                    onChange={(event) =>
+                      updateForm('current', event.target.value)
+                    }
+                    required
+                  />
+                </label>
+
+                <label className="device-form-field device-form-full">
+                  <span>Trạng thái thiết bị</span>
+                  <select
+                    value={formData.status}
+                    onChange={(event) =>
+                      updateForm(
+                        'status',
+                        event.target.value as DeviceStatus,
+                      )
+                    }
+                  >
+                    <option value="normal">Bình thường</option>
+                    <option value="warning">Cảnh báo</option>
+                    <option value="offline">Mất kết nối</option>
+                  </select>
+                </label>
+              </div>
+
+              {formError && (
+                <p className="device-form-error" role="alert">
+                  {formError}
+                </p>
+              )}
+
+              <div className="device-modal-actions">
+                <button
+                  type="button"
+                  className="device-cancel-button"
+                  onClick={closeModal}
+                >
+                  Hủy
+                </button>
+
+                <button
+                  type="submit"
+                  className="device-save-button"
+                >
+                  {modalMode === 'create' ? 'Thêm thiết bị' : 'Lưu thay đổi'}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
     </>
   )
 }

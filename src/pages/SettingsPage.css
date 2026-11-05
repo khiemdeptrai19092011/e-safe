@@ -210,3 +210,109 @@
     gap: 10px;
   }
 }
+/* ===== Device list heading ===== */
+
+.device-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.device-list-heading .device-results {
+  margin-bottom: 0;
+}
+
+/* ===== Add button ===== */
+
+.device-add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.device-add-button:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.device-add-button:focus-visible,
+.device-delete-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* ===== Card actions ===== */
+
+.device-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.device-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--border));
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--danger);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.device-delete-button:hover {
+  background: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  border-color: var(--danger);
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 640px) {
+  .device-list-heading {
+    align-items: center;
+  }
+
+  .device-add-button {
+    min-height: 38px;
+    padding: 0 11px;
+    font-size: 12px;
+  }
+
+  .device-card-actions {
+    width: 100%;
+  }
+
+  .device-card-actions button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 380px) {
+  .device-list-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

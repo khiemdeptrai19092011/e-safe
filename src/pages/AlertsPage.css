@@ -26,10 +26,19 @@
   line-height: 1;
 }
 
-.alert-summary-card.critical strong { color: var(--danger); }
-.alert-summary-card.warning strong { color: var(--warning); }
-.alert-summary-card.info strong { color: var(--primary); }
+.alert-summary-card.critical strong {
+  color: var(--danger);
+}
 
+.alert-summary-card.warning strong {
+  color: var(--warning);
+}
+
+.alert-summary-card.info strong {
+  color: var(--primary);
+}
+
+/* Bộ lọc cảnh báo */
 .alert-toolbar {
   display: flex;
   align-items: center;
@@ -55,6 +64,7 @@
   border-radius: 7px;
   font-size: 13px;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .alert-level-tabs button.active {
@@ -63,9 +73,17 @@
   box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
 }
 
-.alert-level-tabs button.active.critical { color: var(--danger); }
-.alert-level-tabs button.active.warning { color: var(--warning); }
-.alert-level-tabs button.active.info { color: var(--primary); }
+.alert-level-tabs button.active.critical {
+  color: var(--danger);
+}
+
+.alert-level-tabs button.active.warning {
+  color: var(--warning);
+}
+
+.alert-level-tabs button.active.info {
+  color: var(--primary);
+}
 
 .alert-status-select {
   min-height: 40px;
@@ -81,6 +99,24 @@
   border-color: var(--primary);
 }
 
+/* Nút đặt lại bộ lọc */
+.toolbar-reset {
+  padding: 8px 12px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.toolbar-reset:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Danh sách cảnh báo */
 .alert-list {
   display: flex;
   flex-direction: column;
@@ -90,6 +126,7 @@
 .alert-card {
   display: grid;
   grid-template-columns: 4px minmax(0, 1fr) auto;
+  align-items: stretch;
   gap: 16px;
   padding: 18px;
   background: var(--surface);
@@ -105,10 +142,19 @@
   background: var(--primary);
 }
 
-.alert-card.critical .alert-indicator { background: var(--danger); }
-.alert-card.warning .alert-indicator { background: var(--warning); }
-.alert-card.info .alert-indicator { background: var(--primary); }
+.alert-card.critical .alert-indicator {
+  background: var(--danger);
+}
 
+.alert-card.warning .alert-indicator {
+  background: var(--warning);
+}
+
+.alert-card.info .alert-indicator {
+  background: var(--primary);
+}
+
+/* Nội dung chính */
 .alert-main {
   min-width: 0;
 }
@@ -146,6 +192,7 @@
   background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
+/* Trạng thái */
 .alert-status.new {
   color: var(--danger);
   background: color-mix(in srgb, var(--danger) 9%, transparent);
@@ -174,6 +221,7 @@
   line-height: 1.6;
 }
 
+/* Thông tin thiết bị */
 .alert-meta {
   display: flex;
   flex-wrap: wrap;
@@ -183,6 +231,7 @@
   font-size: 11px;
 }
 
+/* Thông số đo */
 .alert-metrics {
   display: flex;
   align-items: center;
@@ -201,6 +250,40 @@
   font-size: 16px;
 }
 
+/* Thao tác cảnh báo */
+.alert-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.alert-actions button {
+  min-height: 36px;
+  padding: 8px 14px;
+  color: white;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.alert-actions button:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.alert-actions button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Tablet */
 @media (max-width: 850px) {
   .alert-card {
     grid-template-columns: 4px minmax(0, 1fr);
@@ -213,6 +296,7 @@
   }
 }
 
+/* Mobile */
 @media (max-width: 600px) {
   .alert-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -258,5 +342,9 @@
 
   .alert-metrics {
     gap: 28px;
+  }
+
+  .alert-actions button {
+    min-height: 40px;
   }
 }

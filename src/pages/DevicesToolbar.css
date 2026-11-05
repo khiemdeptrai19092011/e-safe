@@ -1,17 +1,13 @@
-/* ===== Device toolbar: tìm kiếm + lọc + sắp xếp =====
-   Xóa các rule cũ: .device-filter-wrapper, .device-filter-trigger,
-   .device-filter-menu, .device-filter-option, .filter-chevron
-   và rule cũ của .device-toolbar / .device-search.
-   Các biến màu bên dưới có giá trị dự phòng; đổi sang biến của dự án nếu có. */
+/* ===== Device toolbar: tìm kiếm + lọc + sắp xếp ===== */
 
 .device-toolbar {
-  --tb-bg: var(--surface, #ffffff);
-  --tb-border: var(--border, #e2e8f0);
-  --tb-text: var(--text, #0f172a);
-  --tb-muted: var(--text-muted, #64748b);
-  --tb-accent: var(--accent, #2563eb);
-  --tb-accent-soft: var(--accent-soft, #eff6ff);
-  --tb-hover: var(--surface-hover, #f8fafc);
+  --tb-bg: var(--surface);
+  --tb-border: var(--border);
+  --tb-text: var(--text);
+  --tb-muted: var(--text-muted);
+  --tb-accent: var(--primary);
+  --tb-accent-soft: color-mix(in srgb, var(--primary) 12%, transparent);
+  --tb-hover: var(--surface-secondary);
   --tb-normal: #16a34a;
   --tb-warning: #d97706;
   --tb-offline: #dc2626;
@@ -29,6 +25,7 @@
 }
 
 /* ---------- Tìm kiếm ---------- */
+
 .device-search-field {
   position: relative;
   flex: 1;
@@ -95,7 +92,8 @@
   color: var(--tb-text);
 }
 
-/* ---------- Sắp xếp (select tùy chỉnh) ---------- */
+/* ---------- Sắp xếp ---------- */
+
 .device-sort {
   position: relative;
   flex-shrink: 0;
@@ -168,6 +166,7 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -205,6 +204,7 @@
 }
 
 /* ---------- Chip lọc trạng thái ---------- */
+
 .device-toolbar-row--chips {
   justify-content: space-between;
 }
@@ -259,9 +259,11 @@
 .status-chip.normal .status-chip-dot {
   background: var(--tb-normal);
 }
+
 .status-chip.warning .status-chip-dot {
   background: var(--tb-warning);
 }
+
 .status-chip.offline .status-chip-dot {
   background: var(--tb-offline);
 }
@@ -295,6 +297,7 @@
   background: color-mix(in srgb, var(--tb-normal) 10%, var(--tb-bg));
   color: var(--tb-normal);
 }
+
 .status-chip.normal.active .status-chip-count {
   background: var(--tb-normal);
 }
@@ -304,6 +307,7 @@
   background: color-mix(in srgb, var(--tb-warning) 10%, var(--tb-bg));
   color: var(--tb-warning);
 }
+
 .status-chip.warning.active .status-chip-count {
   background: var(--tb-warning);
 }
@@ -313,11 +317,13 @@
   background: color-mix(in srgb, var(--tb-offline) 10%, var(--tb-bg));
   color: var(--tb-offline);
 }
+
 .status-chip.offline.active .status-chip-count {
   background: var(--tb-offline);
 }
 
 /* ---------- Nút đặt lại ---------- */
+
 .toolbar-reset {
   flex-shrink: 0;
   height: 36px;
@@ -325,7 +331,7 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: var(--accent, #2563eb);
+  color: var(--primary);
   font: inherit;
   font-size: 13.5px;
   font-weight: 600;
@@ -333,15 +339,21 @@
 }
 
 .toolbar-reset:hover {
-  background: var(--accent-soft, #eff6ff);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.toolbar-reset:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .empty-state .toolbar-reset {
   margin-top: 8px;
-  border: 1px solid var(--border, #e2e8f0);
+  border: 1px solid var(--border);
 }
 
 /* ---------- Mobile ---------- */
+
 @media (max-width: 640px) {
   .device-toolbar-row:first-child {
     flex-direction: column;
